@@ -56,46 +56,51 @@ Y_test = np_utils.to_categorical(Y_test, n_classes)
 
 # Secuential model definition
 model = Sequential()
+# 1 convolution
 model.add(Convolution2D(conv_1, k_s, k_s, input_shape=(depth, height, width), activation='relu', border_mode='same'))
 model.add(Dropout( d_p ))
+# 2 convolution
 model.add(Convolution2D( conv_1, k_s, k_s, activation='relu', border_mode='same'))
 model.add(MaxPooling2D(pool_size=( p_s, p_s )))
-# 2 convolution
+# 3 convolution
 model.add(Convolution2D( conv_2, k_s, k_s, activation='relu', border_mode='same'))
 model.add(Dropout( d_p ))
+# 4 convolution
 model.add(Convolution2D( conv_2, k_s, k_s, activation='relu', border_mode='same'))
 model.add(MaxPooling2D(pool_size=( p_s, p_s )))
-
-# 3 convolution
+# 5 convolution
 model.add(Convolution2D( conv_3, k_s, k_s, activation='relu', border_mode='same'))
 model.add(Dropout( d_p ))
+# 6 convolution
 model.add(Convolution2D(conv_3, k_s, k_s, activation='relu', border_mode='same'))
 model.add(MaxPooling2D(pool_size=( p_s, p_s )))
+# flatten for post full-conection
 model.add(Flatten())
 model.add(Dropout( d_p ))
-# 1024 fully conectted layers
+# 1024 fully conected layer
 model.add(Dense( f_c_2, activation='relu', W_constraint=maxnorm(3)))
 model.add(Dropout( d_p ))
-
-# 512 fully conectted layers
+# 512 fully conected layer
 model.add(Dense( f_c_1, activation='relu', W_constraint=maxnorm(3)))
 model.add(Dropout( d_p ))
+# finnaly connected 10 clases
 model.add(Dense( n_classes, activation='softmax' ))
 
 # compile model
-
 sgd = SGD(lr=lrate, momentum=0.9, decay=decay, nesterov=False)   # optimizer
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
- print(model.summary())
+# print resume model
+print(model.summary())
 
 # fit and evaluate model
 hist = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), batch_size=b_s, nb_epoch=epochs)
 score = model.evaluate(X_test, Y_test, verbose=0)
+
 # accuracy
 print("Accuracy: %.2f%%" % (score[1]*100))
 
-# save model
+# save model for transfer learning
 model.save('my_model.h5')
 
 # architecture net
@@ -115,7 +120,7 @@ pd.crosstab(y_hat, b2)
 # summarize history for accuracy
 plt.plot(hist.history['acc'])
 plt.plot(hist.history['val_acc'])
-plt.title('model accuracy')
+plt.title('model accuracy', fontsize=20)
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
@@ -128,23 +133,3 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
